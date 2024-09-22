@@ -484,8 +484,6 @@ dataset |>
 :::
 :::
 
-## 
-
 ## Regressão logística e razão de chances
 
 \
