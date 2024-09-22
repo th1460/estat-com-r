@@ -1,0 +1,557 @@
+---
+title: "Estatística com R"
+author: "Thiago Pires <br> --"
+title-slide-attributes:
+  data-background-image: cover.gif
+  data-background-position: cover
+format: 
+  live-revealjs:
+    theme: theme.scss
+    width: 1600
+    height: 900
+    footer: "[github.com/th1460/estatistica-com-r](https://github.com/th1460/estatistica-com-r)"
+engine: knitr
+html-math-method: mathjax
+code-annotations: hover
+embed-resources: false
+execute: 
+  echo: true
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+## Thiago Pires
+
+\
+
+::: {.columns}
+::: {.column}
+![](avatar.jpeg){.rounded-corners .absolute left=5%}
+:::
+::: {.column}
+### Formação
+- Estatística (UERJ)
+- MSc. Epidemiologia (ENSP/FIOCRUZ)
+- DSc. Engenharia Biomédica (COPPE/UFRJ)
+
+\
+
+### Trabalho
+- Cientista de Dados na IBM
+- Professor no UNASP HT no departamento de engenharia e sistemas
+:::
+:::
+
+# Linguagem R
+
+## Linguagem R
+
+\
+
+::: {.columns}
+::: {.column width="60%"}
+- A linguagem R foi derivada da linguagem S.
+- Foi lançada em 1993 pelos dois estatísticos Ross Ihaka e Robert Gentleman da Universidade de Auckland, Nova Zelândia
+- Atualmente na versão 4.4.1
+- Página oficial <https://www.r-project.org/>
+
+![](r-logo.png){width=15%}
+:::
+
+::: {.column width="40%"}
+![](ross-ihaka.png){.rounded-corners .absolute width=25% left=75% top=10%}
+![](robert-gentleman.jpeg){.rounded-corners .absolute width=25% left=60% top=50%}
+:::
+:::
+
+## Linguagem R
+### Variáveis e funções internas
+
+\
+
+::: {.columns}
+::: {.column}
+> Na programação, [variáveis]{.blue} são nomes que representam valores que podem ser manipulados durante a execução de um programa. Elas são elementos básicos, pois armazenam os dados que são necessários para o algoritmo.
+:::
+::: {.column}
+```{webr}
+x <- 4 # x recebe um inteiro
+x # retornando o conteúdo da variável x
+y <- "versão" # y recebe uma string
+y # retornando o conteúdo da variável y
+(w <- TRUE) # w recebe um booleano
+(z <- paste(y, x)) # função interna
+```
+:::
+:::
+
+## Linguagem R
+### Estruturas de dados
+
+\
+
+::: {.columns}
+::: {.column}
+> As [estruturas de dados]{.blue} servem para organizar, manipular e acessar dados em diversos formatos 
+:::
+::: {.column}
+```{webr}
+(vetor = c(1, 2, 3, 4, 5, 6, 7, 8, 9))
+(lista = list(vetor = vetor, pi = 3.14))
+(matriz = matrix(vetor, 3, 3))
+```
+:::
+:::
+
+## Linguagem R
+### Criando funções
+
+\
+
+::: {.columns}
+::: {.column}
+> Em programação, uma [função]{.blue} é um bloco de código que executa uma operação e que pode ser chamada por outros trechos do programa. As funções têm um nome, uma definição e podem ser invocadas, assim como as funções matemáticas.
+:::
+::: {.column}
+```{webr}
+f <- function(x) { x^2 }
+f(-4:4)
+-4:4 |> f() # versão 4.1+
+```
+:::
+:::
+
+## Linguagem R
+### Data frame
+
+\
+
+::: {.columns}
+::: {.column width=45%}
+> [Data frame]{.blue} é uma estrutura de dados que organiza dados em uma tabela bidimensional, semelhante a uma planilha ou a uma tabela de uma base de dados.
+:::
+::: {.column width=55%}
+```{webr}
+f <- function(x) { x^2 }
+(dados <- data.frame(x = c(4, 3, 5), y = c("a", "b", "a")))
+dados$z <- dados$x |> f()
+dados
+dados$z |> mean() # calculando medidas
+```
+:::
+:::
+
+## Linguagem R
+### Gráficos
+
+\
+
+```{webr}
+f <- function(x) { x^2 }
+x <- seq(-5, 5, .1)
+y <- f(x)
+plot(x, y, type = "l", col = "blue")
+# points(2, 15)
+# abline(v = 2, lty = 2)
+# abline(h = 15, lty = 2)
+```
+
+## Linguagem R
+### Instalação de pacotes
+
+\
+
+Para instalar uma biblioteca externa
+
+```{r}
+#| eval: false
+install.packages("dplyr")
+```
+
+\
+
+Para utilizar a biblioteca externa
+
+
+```{r}
+#| eval: false
+library(dplyr) # ou
+require(dplyr)
+
+dados <- data.frame(x = 1)
+glimpse(dados) # ou
+
+dplyr::glimpse(dados)
+```
+
+# Tidyverse
+
+## Tidyverse e <s>RStudio</s> Posit
+
+\
+
+::: {.columns}
+::: {.column}
+> [Tidyverse](https://www.tidyverse.org/) é uma coleção de pacotes desenvolvidos pela atual empresa [Posit](https://posit.co/) e projetados para ciência de dados. Todas estes bibliotecas tentam compartilhar [uma mesma sintaxe e estrutura de dados.]{.mark}
+:::
+::: {.column}
+![](tidyverse.png)
+:::
+:::
+
+## `dplyr::` manipulação de dados
+
+\
+
+Média, desvio-padrão e N da idade, segundo sexo
+
+```{r}
+#| output-location: column
+
+titanic::titanic_train |>
+    dplyr::filter(Survived == 0) |>
+    dplyr::group_by(Sex) |>
+    dplyr::summarise(
+        `Média` = mean(Age, na.rm = TRUE),
+        `Desvio-padrão` = sd(Age, na.rm = TRUE),
+        N = dplyr::n()
+    ) |>
+    dplyr::mutate(
+        across(c(2, 3), \(x) round(x, 1))
+    )
+```
+
+Percentual de mortos, segundo sexo
+
+```{r}
+#| output-location: column
+
+titanic::titanic_train |>
+    dplyr::count(Survived, Sex) |>
+    dplyr::group_by(Sex) |>
+    dplyr::mutate(`%` = round(n / sum(n) * 100, 1)) |>
+    dplyr::filter(Survived == 0)
+```
+
+## `ggplot2::` visualização de dados
+
+\
+
+Percentual de mortos e vivos, segundo sexo e classe
+
+```{r}
+#| output-location: column
+#| fig-height: 8
+#| fig-width: 12
+
+library(ggplot2)
+
+titanic::titanic_train |>
+    ggplot() +
+    aes(Sex, ..count.. / sum(..count..),
+        group = Survived,
+        fill = as.factor(Survived)
+    ) +
+    geom_bar(position = "fill") +
+    facet_grid(~Pclass) +
+    scale_y_continuous(labels = scales::percent) +
+    scale_fill_manual(
+        values = c("#d0e2ff", "#0f62fe"),
+        labels = c("não", "sim")
+    ) +
+    labs(x = "Sexo", y = "", fill = "Sobreviveu") +
+    theme_minimal() +
+    theme(text = element_text(
+        size = 24,
+        family = "IBM Plex Sans"
+    ))
+```
+
+## `stringr::` `forcats::` textos e fatores
+
+\
+
+```{r}
+#| output-location: column
+
+titanic::titanic_train$Name[4]
+```
+
+```{r}
+#| output-location: column
+
+titanic::titanic_train |>
+    dplyr::mutate(
+        Title = Name |>
+            stringr::str_extract(
+                "(?<=\\,\\s)(.*)(?=\\.)"
+            ) |>
+            forcats::fct_lump(n = 4)
+    ) |>
+    ggplot() +
+    aes(Title, Age) +
+    geom_boxplot() +
+    theme(
+        text = element_text(
+            size = 24,
+            family = "IBM Plex Sans"
+        ),
+    )
+```
+
+## `readr::` ler arquivos
+
+\
+
+```{r}
+url <- "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
+
+(covid19 <-
+    readr::read_csv(url) |>
+    dplyr::filter(`Country/Region` == "Brazil") |>
+    dplyr::select(-c(`Province/State`, Lat, Long)))
+```
+
+## `tidyr::` e `lubridate::` mais manipulações
+
+\
+
+```{r}
+#| output-location: column
+covid19 <-
+    covid19 |>
+    tidyr::pivot_longer(!`Country/Region`,
+        names_to = "date",
+        values_to = "cumulate"
+    ) |>
+    dplyr::group_by(`Country/Region`) |>
+    dplyr::mutate(
+        date = lubridate::mdy(date),
+        value = cumulate - dplyr::lag(cumulate)
+    ) |>
+    dplyr::rename(country = `Country/Region`)
+
+covid19 |> head(5)
+```
+
+## `ggplot2::` visualização de casos de COVID 19
+
+\
+
+```{r}
+#| fig-height: 5
+#| fig-width: 16
+#| fig-align: center
+
+covid19 |>
+    dplyr::mutate(moving_average = zoo::rollmean(value, 7, align = "right", fill = NA)) |>
+    ggplot2::ggplot() +
+    ggplot2::aes(date, moving_average) +
+    ggplot2::geom_line(color = "#0f62fe") +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(
+        x = "Data",
+        y = "Média móvel casos COVID 19"
+    ) +
+    theme(text = element_text(size = 22, family = "IBM Plex Sans"))
+```
+
+## `leaflet::` rota do Titanic
+
+\
+
+```{r}
+#| output-location: column
+library(leaflet)
+events <- data.frame(
+    location = c(
+        "Southampton (10-04-1912)",
+        "Cherbourg (10-04-1912)",
+        "Queenstown (11-04-1912)",
+        "Naufrágio (14-04-1912)",
+        "New York"
+    ), lng = c(
+        -1.4191, -1.6109, -8.3211,
+        -49.9408, -73.9655
+    ), lat = c(
+        50.7894, 49.6445, 51.8535,
+        41.7258, 40.6832
+    )
+)
+
+leaflet() |>
+    setView(
+        lng = -33.9,
+        lat = 46.8,
+        zoom = 3
+    ) |>
+    addTiles() |>
+    addCircleMarkers(
+        data = events |> dplyr::slice(1:3, 5),
+        popup = ~location,
+        color = c(rep("blue", 3), "green")
+    ) |>
+    addMarkers(
+        data = events |> dplyr::slice(4),
+        icon = list(
+            iconUrl = "sinking-ship.jpeg",
+            iconSize = c(50, 50)
+        ),
+        popup = ~location
+    ) |>
+    addPolylines(data = events, ~lng, ~lat)
+```
+
+# Estatística
+
+## Analisando uma distribuição
+
+\
+
+::: {.columns}
+::: {.column}
+```{r}
+#| fig-height: 4
+library(ggplot2)
+library(dplyr)
+
+titanic::titanic_train |>
+  ggplot(aes(x = Fare)) +
+  geom_histogram() +
+  theme_minimal() +
+  theme(text = element_text(
+    size = 22, 
+    family = "IBM Plex Sans")
+  )
+```
+:::
+::: {.column}
+```{r}
+titanic::titanic_train |>
+  summarise(
+    min(Fare),
+    max(Fare),
+    mean(Fare),
+    median(Fare),
+    e1071::skewness(Fare)
+  ) |>
+  tidyr::pivot_longer(
+    everything(),
+    names_to = "measure") |> 
+  mutate(value = value |> round(2))
+```
+:::
+:::
+
+## Distribuição simétrica
+
+\
+
+::: {.columns}
+::: {.column}
+```{r}
+#| fig-height: 4
+set.seed(123)
+
+dataset <- tibble(x = rnorm(1000, 30, 2))
+dataset |> 
+  ggplot(aes(x)) +
+  geom_histogram(aes(y = ..density..)) +
+  geom_density(aes(x), color = "blue") +
+  theme_minimal() +
+  theme(text = element_text(
+  size = 22, 
+  family = "IBM Plex Sans")
+)
+
+```
+:::
+::: {.column}
+```{r}
+dataset |> 
+  summarise(
+    min(x),
+    max(x),
+    mean(x),
+    median(x),
+    e1071::skewness(x)
+  ) |> 
+  tidyr::pivot_longer(everything(),
+                      names_to = "measure") |> 
+  mutate(value = value |> round(2))
+
+```
+:::
+:::
+
+## 
+
+## Regressão logística e razão de chances
+
+\
+
+```{r}
+titanic <-
+    titanic::titanic_train |>
+    dplyr::mutate(
+        Pclass = relevel(
+            factor(
+                Pclass,
+                labels = c("1st", "2nd", "3rd")
+            ),
+            ref = "3rd"
+        ),
+        Survived = factor(
+            Survived,
+            labels = c("não", "sim")
+        ),
+        Sex = factor(Sex, levels = c("male", "female"))
+    )
+
+model <- glm(Survived ~ Sex + Pclass,
+    family = binomial,
+    data = titanic
+)
+```
+
+
+## Regressão logística e razão de chances
+
+\
+
+```{r}
+model |>
+    broom::tidy() |>
+    dplyr::mutate(exp(estimate))
+```
+
+\
+
+- A chance de uma [mulher sobreviver é 14 vezes a chance de um homem]{.mark} sobreviver
+- A chance de uma pessoa da [1st classe sobreviver é 6.72 vezes a chance de um pessoa da 3rd classe]{.mark} sobreviver
+- A chance de uma pessoa da [2nd classe sobreviver é 2.91 vezes a chance de um pessoa da 3rd classe]{.mark} sobreviver
+
+##
+
+::: {.columns}
+::: {.column width=50%}
+::: {.medium right=70%}
+
+<h1>Obrigado</h1>
+
+:::
+:::
+
+::: {.column width=50%}
+::: {.medium right=30%}
+
+[th1460.github.io](https://th1460.github.io/)<br>
+[github.com/th1460](https://github.com/)<br>
+[medium.com/@thopr](https://medium.com/@thopr)<br>
+[linkedin.com/in/thop](https://www.linkedin.com/in/thop)<br>
+[twitter.com/th14600](https://twitter.com/th14600)<br>
+[@thop@fosstodon.org](https://fosstodon.org/@thop)<br>
+
+:::
+:::
+:::
