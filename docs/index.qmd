@@ -404,7 +404,7 @@ leaflet() |>
 
 # Estatística
 
-## Analisando uma distribuição
+## Distribuição simétrica
 
 \
 
@@ -414,43 +414,6 @@ leaflet() |>
 #| fig-height: 4
 library(ggplot2)
 library(dplyr)
-
-titanic::titanic_train |>
-  ggplot(aes(x = Fare)) +
-  geom_histogram() +
-  theme_minimal() +
-  theme(text = element_text(
-    size = 22, 
-    family = "IBM Plex Sans")
-  )
-```
-:::
-::: {.column}
-```{r}
-titanic::titanic_train |>
-  summarise(
-    min(Fare),
-    max(Fare),
-    mean(Fare),
-    median(Fare),
-    e1071::skewness(Fare)
-  ) |>
-  tidyr::pivot_longer(
-    everything(),
-    names_to = "measure") |> 
-  mutate(value = value |> round(2))
-```
-:::
-:::
-
-## Distribuição simétrica
-
-\
-
-::: {.columns}
-::: {.column}
-```{r}
-#| fig-height: 4
 set.seed(123)
 
 dataset <- tibble(x = rnorm(1000, 30, 2))
@@ -474,6 +437,7 @@ dataset |>
     max(x),
     mean(x),
     median(x),
+    sd(x),
     e1071::skewness(x)
   ) |> 
   tidyr::pivot_longer(everything(),
@@ -483,6 +447,113 @@ dataset |>
 ```
 :::
 :::
+
+## Analisando uma distribuição
+
+\
+
+::: {.columns}
+::: {.column}
+```{r}
+#| fig-height: 4
+titanic::titanic_train |>
+  ggplot(aes(x = Fare)) +
+  geom_histogram() +
+  theme_minimal() +
+  theme(text = element_text(
+    size = 22, 
+    family = "IBM Plex Sans")
+  )
+```
+:::
+::: {.column}
+```{r}
+titanic::titanic_train |>
+  summarise(
+    min(Fare),
+    max(Fare),
+    mean(Fare),
+    median(Fare),
+    sd(Fare),
+    e1071::skewness(Fare)
+  ) |>
+  tidyr::pivot_longer(
+    everything(),
+    names_to = "measure") |> 
+  mutate(value = value |> round(2))
+```
+:::
+:::
+
+## Inferência
+
+\
+
+> O objetivo da [Inferência Estatística]{.blue} é produzir afirmações sobre dada característica da população, na qual estamos interessados, a partir de informações colhidas de uma parte dessa população.
+
+\
+
+> [*População*]{.blue} é o conjunto de todos os elementos ou resultados sob investigação. [*Amostra*]{.blue} é qualquer subconjunto da população.
+
+## Teste de Hipótese
+
+\
+
+> Uma afirmação sobre um parâmetro da população, [desejamos saber se os resultados experimentais provenienetes de uma amostra contrariam ou não tal afirmação]{.mark}.
+
+\
+
+*Uma afirmação que poderia ser feita é que a tarifa média é maior do que $30*
+
+## Teste de Hipótese
+
+\
+
+Estruturando as hipóteses
+
+$$H_0: \mu \geq 30$$
+$$H_1: \mu < 30$$
+
+Estamos sujeitos a cometer dois tipos de erro:
+
+- Erro de tipo I: rejeitar $H_0$ quando essa é verdadeira. Chamamos de $\alpha$ a probabilidade de cometer esse erro 
+- Erro de tipo II: não rejeitar $H_0$ quando $H_0$ é falsa. A probabilidade de cometer esse erro é denotada por $\beta$
+
+*O erro tipo I nos diz sobre o risco que assumimos ao rejeitar a hipótese nula*
+
+## Teste de Hipótese
+
+\
+
+### P-valor ou probabilidade de significância
+
+\
+
+$$
+P(\bar{X} > \bar{x}_o | H_0\,\text{verdadeiro}) = P\left(\frac{\bar{X}-\mu}{\sigma \over \sqrt{n}} > \frac{\bar{x}_o-\mu}{\sigma \over \sqrt{n}}\right)
+$$
+
+```{r}
+set.seed(456)
+(fare <- titanic::titanic_test$Fare |> sample(50))
+fare |> mean()
+```
+
+## Teste de Hipótese
+
+\
+
+$$
+P\left(\frac{\bar{X}-\mu}{\sigma \over \sqrt{n}} > \frac{\bar{x}_o-\mu}{\sigma \over \sqrt{n}}\right) = P\left(Z > \frac{37.4 - 30}{49.7 \over \sqrt{50}}\right) = P(Z > 1.05)
+$$
+
+```{r}
+pnorm(1.05, lower.tail = FALSE)
+```
+
+Não há evidências estatísticas para rejeitar $H_0$.
+
+<!-- Montar um gráfico aqui -->
 
 ## Regressão logística e razão de chances
 
