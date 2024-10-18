@@ -10,6 +10,8 @@ format:
     width: 1600
     height: 900
     footer: "[github.com/th1460/estatistica-com-r](https://github.com/th1460/estatistica-com-r)"
+    chalkboard:
+      buttons: false
 engine: knitr
 html-math-method: mathjax
 code-annotations: hover
@@ -553,12 +555,135 @@ pnorm(1.05, lower.tail = FALSE)
 
 Não há evidências estatísticas para rejeitar $H_0$.
 
-<!-- Montar um gráfico aqui -->
+## Teste de Hipótese
+
+\
+
+```{r}
+#| output-location: column
+library(ggplot2)
+ggplot(
+    data = data.frame(x = c(0, 60)), aes(x)
+    ) +
+  stat_function(fun = dnorm, n = 100, 
+  args = list(mean = 30, sd = 49.7/sqrt(50))) + 
+  ylab("") +
+  stat_function(fun = dnorm, 
+  args = list(mean = 30, sd = 49.7/sqrt(50)), 
+    xlim = c(37.4, 60), 
+    geom = "area",
+    fill = "#84CA72",
+    alpha = .2
+  ) +
+  stat_function(fun = dnorm, 
+  args = list(mean = 30, sd = 49.7/sqrt(50)), 
+    xlim = c(41.6, 60), 
+    geom = "area",
+    fill = "#84CA10",
+    alpha = .2
+  ) +
+  scale_y_continuous(breaks = NULL) +
+  theme_minimal() +
+  theme(text = element_text(
+  size = 25, 
+  family = "IBM Plex Sans"))
+```
+
+## Teste de Hipótese
+
+\
+
+### Test t para 1 amostra
+
+```{r}
+t.test(x = fare, alternative = "greater", mu = 30)
+```
+
+## Teste de Hipótese
+
+\
+
+::: {.columns}
+::: {.column}
+### Test t para 2 amostras
+
+```{r}
+dataset <- 
+    titanic::titanic_train |>
+    dplyr::select(Fare, Survived)
+
+t.test(Fare ~ Survived, data = dataset)
+```
+:::
+::: {.column}
+```{r}
+dataset |> 
+    dplyr::filter(Fare < 300) |>
+    ggplot2::ggplot() +
+    ggplot2::aes(as.factor(Survived), Fare) +
+    ggplot2::geom_boxplot() +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(text = element_text(
+        size = 25, 
+        family = "IBM Plex Sans"))
+```
+:::
+:::
+
+## Teste de Hipótese
+
+\
+
+### Mann-Whitney
+
+Teste [não-paramétrico]{.blue} para duas amostras
+
+```{r}
+wilcox.test(Fare ~ Survived, data = dataset)
+```
+
+## Teste de Hipótese
+
+\
+
+### Chi-quadrado
+
+::: {.columns}
+::: {.column}
+```{r}
+dataset <- 
+    titanic::titanic_train |>
+    dplyr::select(Sex, Survived)
+
+table(dataset)
+```
+:::
+::: {.column}
+```{r}
+chisq.test(table(dataset))
+```
+:::
+:::
+
+## Teste de Hipótese
+
+\
+
+### Teste de Normalidade
+
+```{r}
+shapiro.test(titanic::titanic_test$Fare)
+```
 
 ## Regressão logística e razão de chances
 
 \
 
+::: {.columns}
+::: {.column}
+> A [regressão logística]{.blue} é uma técnica estatística que tem como objetivo produzir, [a partir de um conjunto de observações, um modelo que permita a predição de valores tomados por uma variável categórica, frequentemente binária]{.mark}, a partir de uma série de variáveis explicativas contínuas e/ou binárias.
+:::
+::: {.column}
 ```{r}
 titanic <-
     titanic::titanic_train |>
@@ -574,7 +699,8 @@ titanic <-
             Survived,
             labels = c("não", "sim")
         ),
-        Sex = factor(Sex, levels = c("male", "female"))
+        Sex = factor(Sex, 
+                    levels = c("male", "female"))
     )
 
 model <- glm(Survived ~ Sex + Pclass,
@@ -582,6 +708,8 @@ model <- glm(Survived ~ Sex + Pclass,
     data = titanic
 )
 ```
+:::
+:::
 
 
 ## Regressão logística e razão de chances
