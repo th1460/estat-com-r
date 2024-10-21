@@ -728,6 +728,37 @@ model |>
 - A chance de uma pessoa da [1st classe sobreviver é 6.72 vezes a chance de um pessoa da 3rd classe]{.mark} sobreviver
 - A chance de uma pessoa da [2nd classe sobreviver é 2.91 vezes a chance de um pessoa da 3rd classe]{.mark} sobreviver
 
+## Regressão poisson e razão de prevalências
+
+\
+
+::: {.columns}
+::: {.column width=30%}
+A regressão de [Poisson]{.blue} é usada quando queremos projetar o valor de uma variável de resultado calculada à partir de [dados de contagem ou tabelas de contingências]{.mark}.
+:::
+::: {.column width=70%}
+```{r}
+
+dataset <-
+    titanic |>
+    dplyr::count(Survived, Sex, Pclass) |>
+    dplyr::group_by(Sex, Pclass) |>
+    dplyr::mutate(Total = sum(n)) |>
+    dplyr::filter(Survived == "sim")
+
+model <- glm(n ~ Sex + Pclass + offset(log(Total)),
+    family = poisson,
+    data = dataset
+)
+
+model |>
+    broom::tidy() |>
+    dplyr::mutate(exp(estimate))
+```
+
+:::
+:::
+
 ##
 
 ::: {.columns}
